@@ -2,7 +2,12 @@
 
 Centralized prompt library for scheduled Claude Code maintenance tasks across multiple projects.
 
-Each file in `tasks/` is a self-contained prompt that a scheduled trigger can fetch and execute against any repo. Project-specific details (test commands, key pages, doc language, push protocol) live in each project's `CLAUDE.md` under a **Night Shift Config** section — task prompts here stay client-agnostic.
+Two layers of prompts a scheduled trigger can fetch and execute against any repo:
+
+- **`tasks/`** — 12 atomic task prompts. Self-contained, one job each. Pick & choose per project.
+- **`bundles/`** — 3 orchestration prompts that run multiple tasks in the right order with the right parallelism/sequencing rules. Designed for accounts with limited daily-trigger slots (e.g. 3 enabled triggers).
+
+Project-specific details (test commands, key pages, doc language, push protocol) live in each project's `CLAUDE.md` under a **Night Shift Config** section — prompts here stay client-agnostic.
 
 ## Tasks
 
@@ -23,18 +28,37 @@ Each file in `tasks/` is a self-contained prompt that a scheduled trigger can fe
 
 Recommended execution order: `00 → 01-04 → 05 → 06 → 07 → 08 → 09 → 10 → 11`.
 
+## Bundles
+
+Three orchestration files in `bundles/` that run several tasks per scheduled session:
+
+| Bundle | Tasks | Ordering |
+|---|---|---|
+| `1-plans-docs.md` | 00 → 01, 02, 03, 04 | 00 first; 01–04 independent |
+| `2-code-verified.md` | 05 → 06 → 07 | strictly sequential, must keep tests green between |
+| `3-audits-prs.md` | 08, 09, 10, 11 | independent; each opens its own PR |
+
+Use bundles when your plan limits daily scheduled triggers — three bundles cover all 12 tasks in three slots.
+
 ## How triggers use it
 
-In each project's scheduled trigger, use a thin wrapper prompt:
+In each project's scheduled trigger, use a thin wrapper prompt.
 
+**Single task:**
 ```
-Fetch the task instructions from
-https://raw.githubusercontent.com/perandre/night-shift/v1/tasks/05-tests.md
-and execute them against this repository. Read CLAUDE.md for project-specific
-configuration (test commands, build commands, key pages, push protocol, etc.).
+Fetch https://raw.githubusercontent.com/perandre/night-shift/v2/tasks/05-tests.md
+and execute it against this repository. Read CLAUDE.md for the Night Shift Config
+section (test commands, build commands, key pages, push protocol, etc.).
 ```
 
-The trigger contains no task logic — all of it lives here.
+**Bundle (recommended when trigger slots are limited):**
+```
+Fetch https://raw.githubusercontent.com/perandre/night-shift/v2/bundles/2-code-verified.md
+and execute it against this repository. Read CLAUDE.md for the Night Shift Config
+section.
+```
+
+The trigger contains no orchestration logic — all of it lives here.
 
 ## Per-project config
 
@@ -53,7 +77,7 @@ Each project's `CLAUDE.md` should include a section like:
 
 ## Version pinning
 
-Triggers reference a tagged version in the raw URL (`v1`, `v2`, ...).
+Triggers reference a tagged version in the raw URL (`v2`, `v2`, ...).
 
 - **Update all projects:** create a new tag, bump the version in each project's triggers.
 - **Test changes:** point one project at a branch URL before tagging.
@@ -62,6 +86,6 @@ Triggers reference a tagged version in the raw URL (`v1`, `v2`, ...).
 ## Adding a new project
 
 1. Add the **Night Shift Config** section to the project's `CLAUDE.md`.
-2. Create scheduled triggers for the desired task subset, each fetching from `https://raw.githubusercontent.com/perandre/night-shift/v1/tasks/NN-*.md`.
+2. Create scheduled triggers for the desired task subset, each fetching from `https://raw.githubusercontent.com/perandre/night-shift/v2/tasks/NN-*.md`.
 3. Run each task once manually (daytime) to validate output quality.
 4. Enable the schedule.
