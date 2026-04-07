@@ -49,7 +49,7 @@ Use the `/schedule` skill (or the `RemoteTrigger` tool directly if available) to
 - **cron** (UTC, default): `0 23 * * *`
 - **prompt**:
   ```
-  Fetch https://raw.githubusercontent.com/perandre/night-shift/v9/bundles/multi-plans.md and execute it. The wrapper auto-discovers all target repositories cloned into this session (excluding the night-shift repo itself), dispatches a Task subagent per target repo, and writes a run log to runs/YYYY-MM.md in the night-shift repo at the end.
+  Fetch https://raw.githubusercontent.com/perandre/night-shift/main/bundles/multi-plans.md and execute it. The wrapper auto-discovers all target repositories cloned into this session (excluding the night-shift repo itself), dispatches a Task subagent per target repo, and writes a run log to runs/YYYY-MM.md in the night-shift repo at the end.
   ```
 
 ### Trigger 2 — Docs + code-fixes
@@ -58,7 +58,7 @@ Use the `/schedule` skill (or the `RemoteTrigger` tool directly if available) to
 - **cron** (UTC, default): `0 1 * * *`
 - **prompt**:
   ```
-  Fetch https://raw.githubusercontent.com/perandre/night-shift/v9/bundles/multi-docs-and-code-fixes.md and execute it. The wrapper auto-discovers all target repositories cloned into this session (excluding the night-shift repo itself), dispatches a Task subagent per target repo to run the docs bundle then the code-fixes bundle in sequence, and writes a run log to runs/YYYY-MM.md in the night-shift repo at the end.
+  Fetch https://raw.githubusercontent.com/perandre/night-shift/main/bundles/multi-docs-and-code-fixes.md and execute it. The wrapper auto-discovers all target repositories cloned into this session (excluding the night-shift repo itself), dispatches a Task subagent per target repo to run the docs bundle then the code-fixes bundle in sequence, and writes a run log to runs/YYYY-MM.md in the night-shift repo at the end.
   ```
 
 ### Trigger 3 — Audits
@@ -67,7 +67,7 @@ Use the `/schedule` skill (or the `RemoteTrigger` tool directly if available) to
 - **cron** (UTC, default): `0 3 * * *`
 - **prompt**:
   ```
-  Fetch https://raw.githubusercontent.com/perandre/night-shift/v9/bundles/multi-audits.md and execute it. The wrapper auto-discovers all target repositories cloned into this session (excluding the night-shift repo itself), dispatches a Task subagent per target repo to run find-security-issues, find-bugs, improve-seo, and improve-performance (each opening its own PR), and writes a run log to runs/YYYY-MM.md in the night-shift repo at the end.
+  Fetch https://raw.githubusercontent.com/perandre/night-shift/main/bundles/multi-audits.md and execute it. The wrapper auto-discovers all target repositories cloned into this session (excluding the night-shift repo itself), dispatches a Task subagent per target repo to run find-security-issues, find-bugs, improve-seo, and improve-performance (each opening its own PR), and writes a run log to runs/YYYY-MM.md in the night-shift repo at the end.
   ```
 
 ## Step 5 — Handle the trigger cap

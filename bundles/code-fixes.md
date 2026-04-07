@@ -8,9 +8,9 @@ Read `CLAUDE.md` for the **Night Shift Config** section if present. If absent, u
 ## Tasks
 Run these tasks **strictly in order**. Each modifies code and must leave the test suite and build green before the next begins. See `manifest.yml` for full task metadata.
 
-1. https://raw.githubusercontent.com/perandre/night-shift/v9/tasks/add-tests.md
-2. https://raw.githubusercontent.com/perandre/night-shift/v9/tasks/improve-accessibility.md
-3. https://raw.githubusercontent.com/perandre/night-shift/v9/tasks/translate-ui.md
+1. https://raw.githubusercontent.com/perandre/night-shift/main/tasks/add-tests.md
+2. https://raw.githubusercontent.com/perandre/night-shift/main/tasks/improve-accessibility.md
+3. https://raw.githubusercontent.com/perandre/night-shift/main/tasks/translate-ui.md
 
 ## Rules
 - Mode: **direct-to-main** — each task commits straight to the default branch.

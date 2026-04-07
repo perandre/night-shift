@@ -9,10 +9,10 @@ Read `CLAUDE.md` for the **Night Shift Config** section if present. If absent, u
 
 Run these in order. Each is a self-contained bundle prompt; fetch the file, read it, execute it, then move on.
 
-1. **plans** — https://raw.githubusercontent.com/perandre/night-shift/v9/bundles/plans.md
-2. **docs** — https://raw.githubusercontent.com/perandre/night-shift/v9/bundles/docs.md
-3. **code-fixes** — https://raw.githubusercontent.com/perandre/night-shift/v9/bundles/code-fixes.md
-4. **audits** — https://raw.githubusercontent.com/perandre/night-shift/v9/bundles/audits.md
+1. **plans** — https://raw.githubusercontent.com/perandre/night-shift/main/bundles/plans.md
+2. **docs** — https://raw.githubusercontent.com/perandre/night-shift/main/bundles/docs.md
+3. **code-fixes** — https://raw.githubusercontent.com/perandre/night-shift/main/bundles/code-fixes.md
+4. **audits** — https://raw.githubusercontent.com/perandre/night-shift/main/bundles/audits.md
 
 ## Rules
 

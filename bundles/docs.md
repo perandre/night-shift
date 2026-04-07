@@ -8,10 +8,10 @@ Read `CLAUDE.md` for the **Night Shift Config** section if present. If absent, u
 ## Tasks
 Run these tasks. They are independent and may run in any order. See `manifest.yml` for full task metadata.
 
-1. https://raw.githubusercontent.com/perandre/night-shift/v9/tasks/update-changelog.md
-2. https://raw.githubusercontent.com/perandre/night-shift/v9/tasks/update-user-guide.md
-3. https://raw.githubusercontent.com/perandre/night-shift/v9/tasks/document-decisions.md
-4. https://raw.githubusercontent.com/perandre/night-shift/v9/tasks/suggest-improvements.md
+1. https://raw.githubusercontent.com/perandre/night-shift/main/tasks/update-changelog.md
+2. https://raw.githubusercontent.com/perandre/night-shift/main/tasks/update-user-guide.md
+3. https://raw.githubusercontent.com/perandre/night-shift/main/tasks/document-decisions.md
+4. https://raw.githubusercontent.com/perandre/night-shift/main/tasks/suggest-improvements.md
 
 ## Rules
 - Mode: **direct-to-main** — each task commits straight to the default branch.

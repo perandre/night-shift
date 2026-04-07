@@ -8,7 +8,7 @@ Read `CLAUDE.md` for the **Night Shift Config** section if present. If absent, u
 ## Tasks
 Run these tasks in order. See `manifest.yml` for full task metadata.
 
-1. https://raw.githubusercontent.com/perandre/night-shift/v9/tasks/build-planned-features.md
+1. https://raw.githubusercontent.com/perandre/night-shift/main/tasks/build-planned-features.md
 
 ## Rules
 - Mode: **pull-request** — task creates a feature branch and opens a PR.

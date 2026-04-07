@@ -27,17 +27,17 @@ For each discovered target repo, in directory-name order:
    You are running TWO night-shift bundles in sequence: docs, then code-fixes.
 
    Step 1 — DOCS:
-   Fetch https://raw.githubusercontent.com/perandre/night-shift/v9/bundles/docs.md
+   Fetch https://raw.githubusercontent.com/perandre/night-shift/main/bundles/docs.md
    and execute it against this repository. Capture its outcome (ok / silent / failed)
    as the docs result.
 
    Step 2 — CODE FIXES (always run, regardless of docs outcome):
-   Fetch https://raw.githubusercontent.com/perandre/night-shift/v9/bundles/code-fixes.md
+   Fetch https://raw.githubusercontent.com/perandre/night-shift/main/bundles/code-fixes.md
    and execute it against this repository. Capture its outcome as the code-fixes result.
 
    CLAUDE.md is optional. Honor `## Night Shift Config` if present, otherwise apply
    the defaults from
-   https://raw.githubusercontent.com/perandre/night-shift/v9/bundles/_multi-runner.md.
+   https://raw.githubusercontent.com/perandre/night-shift/main/bundles/_multi-runner.md.
 
    At the end of your run, append TWO LINES to docs/NIGHTSHIFT-HISTORY.md (create the
    file if missing) under the `## Runs` heading at the top of the runs list:

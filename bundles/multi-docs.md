@@ -18,13 +18,13 @@ For each discovered target repo, in directory-name order:
    ```
    Your working directory is {REPO_PATH}. cd into it now.
 
-   Fetch https://raw.githubusercontent.com/perandre/night-shift/v9/bundles/docs.md
+   Fetch https://raw.githubusercontent.com/perandre/night-shift/main/bundles/docs.md
    and execute it against this repository. The bundle runs the four doc tasks
    (update-changelog, update-user-guide, document-decisions, suggest-improvements).
 
    CLAUDE.md is optional. Honor `## Night Shift Config` if present, otherwise apply
    the defaults from
-   https://raw.githubusercontent.com/perandre/night-shift/v9/bundles/_multi-runner.md.
+   https://raw.githubusercontent.com/perandre/night-shift/main/bundles/_multi-runner.md.
 
    At the end of your run, append ONE LINE to docs/NIGHTSHIFT-HISTORY.md (create the
    file if missing) under the `## Runs` heading at the top of the runs list. Format:

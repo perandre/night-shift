@@ -8,10 +8,10 @@ Read `CLAUDE.md` for the **Night Shift Config** section if present. If absent, u
 ## Tasks
 Each task creates its own branch and its own PR. Run them sequentially but isolated: return to the default branch and ensure the working tree is clean before starting each one. See `manifest.yml` for full task metadata.
 
-1. https://raw.githubusercontent.com/perandre/night-shift/v9/tasks/find-security-issues.md
-2. https://raw.githubusercontent.com/perandre/night-shift/v9/tasks/find-bugs.md
-3. https://raw.githubusercontent.com/perandre/night-shift/v9/tasks/improve-seo.md
-4. https://raw.githubusercontent.com/perandre/night-shift/v9/tasks/improve-performance.md
+1. https://raw.githubusercontent.com/perandre/night-shift/main/tasks/find-security-issues.md
+2. https://raw.githubusercontent.com/perandre/night-shift/main/tasks/find-bugs.md
+3. https://raw.githubusercontent.com/perandre/night-shift/main/tasks/improve-seo.md
+4. https://raw.githubusercontent.com/perandre/night-shift/main/tasks/improve-performance.md
 
 ## Rules
 - Mode: **pull-request** — each task creates a feature branch and opens a PR.
