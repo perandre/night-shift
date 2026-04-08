@@ -28,13 +28,6 @@ In any Claude Code session, type:
 
 Claude will ask what you want to do (set up, test once, add a repo, status), walk you through it interactively, and confirm with you before creating any scheduled triggers.
 
-**Why a skill instead of a paste-able prompt?**
-
-Skills are loaded from your local trusted directory, not fetched at runtime. That means Claude has full context about what Night Shift is and what setup means *before* you ask for anything. A blind "fetch this URL and follow it" prompt would (correctly) be refused as a prompt-injection vector by any well-aligned Claude. A locally-installed skill carries the same information without the trust problem.
-
-**Update later:**
-
-Re-run the install command above. It overwrites the file with the latest version.
 
 ## What you'll find in your repo tomorrow morning
 
