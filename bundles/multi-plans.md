@@ -3,7 +3,7 @@
 You are running the Night Shift **Plans** bundle across **all target repositories** cloned into this session.
 
 ## Discover repos
-List sibling directories at the top of your working tree. For each candidate, confirm it is a git repository via `git rev-parse --show-toplevel`. **Exclude the `night-shift` repo itself** — it is the runner's home, not a target.
+List sibling directories at the top of your working tree. For each candidate, confirm it is a git repository via `git rev-parse --show-toplevel`.
 
 ## Per-repo loop — isolated subagent per repo
 
@@ -40,7 +40,7 @@ For each discovered target repo, in directory-name order:
 If a subagent dispatch itself fails, record `failed | PR: — | dispatch error: <reason>`.
 
 ## Final report
-Print this summary table:
+Print this summary table and stop. The summary table is the primary artifact — it appears in the trigger dashboard and is how the user reviews the run. **Do not** write the summary to any external repo or location; the per-repo `docs/NIGHTSHIFT-HISTORY.md` files in each target repo are the only persisted history.
 
 ```
 Night Shift plans — multi-repo summary
@@ -49,23 +49,3 @@ Night Shift plans — multi-repo summary
 |------|--------|----|-------|
 | ...  | ok / silent / opted-out / dirty-skip / failed | <url or —> | <terse> |
 ```
-
-## Append run log to night-shift repo
-After the summary table is printed, write an entry to `runs/YYYY-MM.md` inside the cloned `night-shift` repo (create the file if missing). Use UTC date. Format:
-
-```markdown
-## YYYY-MM-DD HH:MM UTC — plans (<N> repos)
-
-<the same summary table from above>
-```
-
-Then commit and push the night-shift repo:
-
-```bash
-cd <path-to-night-shift-clone>
-git add runs/
-git commit -m "log: plans run YYYY-MM-DD"
-git push origin main
-```
-
-If the push fails (no credentials, no write access), log it but do **not** fail the run. The per-repo `docs/NIGHTSHIFT-HISTORY.md` files in the target repos are the user-facing artifact and are independent.

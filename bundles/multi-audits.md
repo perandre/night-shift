@@ -3,7 +3,7 @@
 You are running the Night Shift **Audits** bundle across **all target repositories** cloned into this session.
 
 ## Discover repos
-List sibling directories at the top of your working tree. For each candidate, confirm via `git rev-parse --show-toplevel`. **Exclude the `night-shift` repo** — it is the runner's home, not a target.
+List sibling directories at the top of your working tree. For each candidate, confirm via `git rev-parse --show-toplevel`.
 
 ## Per-repo loop — isolated subagent per repo
 
@@ -41,7 +41,7 @@ For each discovered target repo, in directory-name order:
 If a subagent dispatch itself fails, record `failed | PRs: — | dispatch error: <reason>`.
 
 ## Final report
-Print this summary table:
+Print this summary table and stop. The summary table is the primary artifact — it appears in the trigger dashboard. **Do not** write the summary to any external repo; the per-repo `docs/NIGHTSHIFT-HISTORY.md` files in each target repo are the only persisted history.
 
 ```
 Night Shift audits — multi-repo summary
@@ -50,14 +50,3 @@ Night Shift audits — multi-repo summary
 |------|--------|-----------|-------|
 | ...  | ok / silent / opted-out / dirty-skip / failed | <urls or —> | <terse> |
 ```
-
-## Append run log to night-shift repo
-After the summary table, append an entry to `runs/YYYY-MM.md` inside the cloned `night-shift` repo (create if missing). UTC date. Format:
-
-```markdown
-## YYYY-MM-DD HH:MM UTC — audits (<N> repos)
-
-<the same summary table from above>
-```
-
-Then commit + push (`git add runs/ && git commit -m "log: audits run YYYY-MM-DD" && git push origin main`). If the push fails, log it but do **not** fail the bundle run.

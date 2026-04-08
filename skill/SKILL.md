@@ -81,7 +81,7 @@ Use the `/schedule` skill or the `RemoteTrigger` tool, whichever is available. A
 - `model`: `claude-sonnet-4-6`
 - `allowed_tools`: `["Bash", "Read", "Write", "Edit", "Glob", "Grep", "Task"]`
 - `enabled`: `true`
-- `sources[]`: every repo from Step 2 **plus** `https://github.com/perandre/night-shift` (always — the multi-* wrappers write a run log to it)
+- `sources[]`: every repo from Step 2. **Do not** include `https://github.com/perandre/night-shift` — that repo is public and writing run logs to it would leak private project information.
 
 ### Trigger 1 — Plans
 
@@ -89,7 +89,7 @@ Use the `/schedule` skill or the `RemoteTrigger` tool, whichever is available. A
 - **cron** (UTC, default): `0 23 * * *`
 - **prompt**:
   ```
-  Fetch https://raw.githubusercontent.com/perandre/night-shift/main/bundles/multi-plans.md and execute it. The wrapper auto-discovers all target repositories cloned into this session (excluding the night-shift repo itself), dispatches a Task subagent per target repo, and writes a run log to runs/YYYY-MM.md in the night-shift repo at the end.
+  Fetch https://raw.githubusercontent.com/perandre/night-shift/main/bundles/multi-plans.md and execute it. The wrapper auto-discovers all target repositories cloned into this session, dispatches a Task subagent per target repo.
   ```
 
 ### Trigger 2 — Docs + code-fixes
@@ -98,7 +98,7 @@ Use the `/schedule` skill or the `RemoteTrigger` tool, whichever is available. A
 - **cron** (UTC, default): `0 1 * * *`
 - **prompt**:
   ```
-  Fetch https://raw.githubusercontent.com/perandre/night-shift/main/bundles/multi-docs-and-code-fixes.md and execute it. The wrapper auto-discovers all target repositories cloned into this session (excluding the night-shift repo itself), dispatches a Task subagent per target repo to run the docs bundle then the code-fixes bundle in sequence, and writes a run log to runs/YYYY-MM.md in the night-shift repo at the end.
+  Fetch https://raw.githubusercontent.com/perandre/night-shift/main/bundles/multi-docs-and-code-fixes.md and execute it. The wrapper auto-discovers all target repositories cloned into this session, dispatches a Task subagent per target repo to run the docs bundle then the code-fixes bundle in sequence.
   ```
 
 ### Trigger 3 — Audits
@@ -107,7 +107,7 @@ Use the `/schedule` skill or the `RemoteTrigger` tool, whichever is available. A
 - **cron** (UTC, default): `0 3 * * *`
 - **prompt**:
   ```
-  Fetch https://raw.githubusercontent.com/perandre/night-shift/main/bundles/multi-audits.md and execute it. The wrapper auto-discovers all target repositories cloned into this session (excluding the night-shift repo itself), dispatches a Task subagent per target repo to run find-security-issues, find-bugs, improve-seo, and improve-performance (each opening its own PR), and writes a run log to runs/YYYY-MM.md in the night-shift repo at the end.
+  Fetch https://raw.githubusercontent.com/perandre/night-shift/main/bundles/multi-audits.md and execute it. The wrapper auto-discovers all target repositories cloned into this session, dispatches a Task subagent per target repo to run find-security-issues, find-bugs, improve-seo, and improve-performance (each opening its own PR).
   ```
 
 **Step 6 — Handle the trigger cap.**
@@ -132,10 +132,11 @@ Once all three triggers are created, print:
 | audits | <local time> | <N> |
 
 Tomorrow morning, check docs/NIGHTSHIFT-HISTORY.md in each repo for what
-happened. To pause Night Shift on any project, drop a .nightshift-skip
-file at its root. To customise per project, add a Night Shift Config
-section to that project's CLAUDE.md. See https://github.com/perandre/night-shift
-for the full reference.
+happened. The full summary table for each run is also in the trigger
+dashboard at https://claude.ai/code/scheduled. To pause Night Shift on
+any project, drop a .nightshift-skip file at its root. To customise per
+project, add a Night Shift Config section to that project's CLAUDE.md.
+See https://github.com/perandre/night-shift for the full reference.
 ```
 
 ## Test-once runbook (no scheduling)

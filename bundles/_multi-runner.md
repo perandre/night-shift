@@ -10,8 +10,7 @@ When a trigger declares multiple `sources[]` entries with `git_repository`, the 
 <working dir>/
 ├── repo-a/        ← .git inside
 ├── repo-b/
-├── repo-c/
-└── night-shift/   ← this repo, always cloned, used for the runs log
+└── repo-c/
 ```
 
 Discover dynamically — do not hardcode paths:
@@ -21,7 +20,7 @@ ls -1 -d */ 2>/dev/null
 ( cd "$dir" && git rev-parse --show-toplevel 2>/dev/null )
 ```
 
-A directory is a repo if `git rev-parse --show-toplevel` succeeds. Always exclude the `night-shift` repo from the per-bundle loop — it's the runner's own home, not a target.
+A directory is a repo if `git rev-parse --show-toplevel` succeeds.
 
 ## The loop — one isolated subagent per repo
 
@@ -48,7 +47,9 @@ If a subagent dispatch itself throws an unrecoverable error, record `failed | di
 
 ## Per-repo history file: `docs/NIGHTSHIFT-HISTORY.md`
 
-Each subagent appends one line per bundle run to `docs/NIGHTSHIFT-HISTORY.md` in the target repo (creating the file if it doesn't exist). This is the visible artifact in the project repo itself — anyone with repo access can see what Night Shift has been doing.
+Each subagent appends one line per bundle run to `docs/NIGHTSHIFT-HISTORY.md` in the target repo (creating the file if it doesn't exist). This file lives in the target repo itself — anyone with access to that repo can see what Night Shift has been doing. Access control follows the repo's own permissions.
+
+**Do not** write Night Shift logs to any other repo. In particular, do **not** write to the public `perandre/night-shift` repo — doing so would leak private project information (names, activity, commit counts) to a public location. Each target project is the authoritative log for its own Night Shift activity.
 
 Format (newest at the top, under the `## Runs` heading):
 
@@ -66,22 +67,6 @@ bundle run. See https://github.com/perandre/night-shift for what each bundle doe
 ```
 
 Columns: `<YYYY-MM-DD> <bundle id> <status> <terse note>`. Status values: `ok`, `silent` (everything self-skipped), `failed`.
-
-## Run log in the night-shift repo: `runs/YYYY-MM.md`
-
-The `night-shift` repo is always cloned alongside target repos. After all subagents finish and the summary table is built, the main wrapper appends the entire summary table to `runs/YYYY-MM.md` in that repo (creating the file if it doesn't exist), then commits and pushes. This gives the night-shift maintainer a single-place historical log across all projects, even projects they don't have direct access to.
-
-Format: append a level-2 heading per run:
-
-```markdown
-## 2026-04-08 21:00 UTC — plans (3 repos)
-
-| Repo | Status | Notes |
-|------|--------|-------|
-| ... | ... | ... |
-```
-
-If pushing the night-shift repo fails (e.g. credentials missing), log it but **do not** fail the bundle run — the per-repo history files in target repos are the user-facing artifact and are independent.
 
 ## Defaults when no config exists
 
@@ -101,7 +86,7 @@ A project with explicit Night Shift Config in `CLAUDE.md` always overrides these
 
 ## Final report
 
-After all repos are processed, print one table:
+After all repos are processed, print one table and stop. The summary table is the primary run artifact — it appears in the trigger dashboard output and is how the user reviews the run the next morning.
 
 ```
 Night Shift <bundle-name> — multi-repo summary
@@ -113,4 +98,4 @@ Night Shift <bundle-name> — multi-repo summary
 | phone-home   | failed   | test command exited 1 in add-tests |
 ```
 
-Status values: `ok`, `silent`, `opted-out`, `dirty-skip`, `failed`. Keep notes terse. No further prose after the table — but the wrapper still has work to do (append to `runs/YYYY-MM.md` in night-shift repo) before finishing.
+Status values: `ok`, `silent`, `opted-out`, `dirty-skip`, `failed`. Keep notes terse. No further prose after the table. Do not attempt to write the summary to any external location.
