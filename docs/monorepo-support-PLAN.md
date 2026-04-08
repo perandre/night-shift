@@ -88,7 +88,12 @@ when one is provided.
 
 - `tasks/build-planned-features.md` — read plans from `<app_path>/<plans
   dir>` instead of `docs/`. Branch name includes the app slug
-  (`nightshift/plan-web-<plan>-phase-N-...`).
+  (`nightshift/plan-web-<plan>-phase-N-...`). **Each plan execution gets
+  its own PR** — one PR per plan touched, never bundled. Relax the global
+  "one phase per night, ever" cap to "one phase per plan per night": in a
+  monorepo, two different plans (in different apps, or even the same app)
+  can each land a phase on the same night, but any single plan still
+  advances at most one phase per run.
 - `tasks/add-tests.md` — only walk files under `app_path`. Run the
   scoped test command.
 - `tasks/find-bugs.md` — same scoping.
