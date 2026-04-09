@@ -6,12 +6,12 @@ description: |
   Use this skill when the user explicitly asks to: install Night Shift, set up Night Shift, schedule Night Shift, run a Night Shift bundle, add a repo to Night Shift, remove a repo from Night Shift, pause Night Shift on a project, or check Night Shift status.
 
   MANDATORY TRIGGERS: night-shift, night shift, nightshift, /night-shift, set up night shift, install night shift, schedule night shift, run night shift, night shift setup, night shift install
-version: 2026-04-09f
+version: 2026-04-09g
 ---
 
 # Night Shift
 
-<!-- NIGHT_SHIFT_VERSION: 2026-04-09f -->
+<!-- NIGHT_SHIFT_VERSION: 2026-04-09g -->
 
 ## Version check (run this first, every invocation)
 
@@ -53,7 +53,7 @@ Default to **Setup** unless the user clearly asks for something else (test once,
 
 **Step 0 — Check for existing Night Shift triggers first.**
 
-Before welcoming the user, list their scheduled triggers via the `RemoteTrigger` tool (`action: "list"`) and filter to names starting with `night-shift-bundle-`. Then:
+Before welcoming the user, list their scheduled triggers via the `RemoteTrigger` tool (`action: "list"`) and filter to names starting with `night-shift-`. Then:
 
 - **If none exist** → proceed to Step 1 (fresh setup).
 - **If some or all three exist** → don't run fresh setup. Instead, show the user what's already in place and ask what they want to do:
@@ -62,9 +62,9 @@ Before welcoming the user, list their scheduled triggers via the `RemoteTrigger`
   >
   > | Job | Schedule | Repos |
   > |---|---|---|
-  > | plans | `<local time>` | `<repo list>` |
-  > | docs + code-fixes | `<local time>` | `<repo list>` |
-  > | audits | `<local time>` | `<repo list>` |
+  > | build | `<local time>` | `<repo list>` |
+  > | maintain | `<local time>` | `<repo list>` |
+  > | audit | `<local time>` | `<repo list>` |
   >
   > What would you like to do?
   > - **Add a repo** to all jobs (runs the task picker for the new repo)
@@ -83,9 +83,9 @@ Send a single message that welcomes, states what Night Shift will do for them, a
 
 > **Welcome to Night Shift.** I'll set up three scheduled jobs that run every night on your chosen repos:
 >
-> - **Plans** — implements any plan files you've left in the repo
-> - **Docs + code fixes** — keeps docs in sync with code and fixes small issues
-> - **Audits** — opens PRs for security, bugs, SEO, and performance findings
+> - **Build** — implements planned features from your plan files
+> - **Maintain** — keeps docs in sync with code and fixes quality issues
+> - **Audit** — opens PRs for security and bug findings
 >
 > You can pause, add, or remove repos any time.
 >
@@ -105,21 +105,21 @@ For each repo in the list, in the order the user gave them, run the picker loop 
 
 2. Call `AskUserQuestion` with **3 questions**, all `multiSelect: true`. Mention the repo URL and progress (`repo N of M`) in the first question. Each option's `label` is the task id (e.g. `find-bugs`) and `description` is the human title from `manifest.yml`. Phrase questions to make clear all tasks are recommended.
 
-   **Question 1 — "Plans"** (header: `Plans`):
+   **Question 1 — "Plans + Docs"** (header: `Plans+Docs`):
    - `build-planned-features` — Build planned features
-
-   **Question 2 — "Docs + Code fixes"** (header: `Docs+Code`):
    - `update-docs` — Update all documentation (changelog, user guide, ADRs, suggestions)
+
+   **Question 2 — "Improve code quality"** (header: `Improve`):
    - `add-tests` — Add tests
    - `improve-accessibility` — Improve accessibility
-   - `translate-ui` — Translate UI
-
-   **Question 3 — "Audits"** (header: `Audits`):
-   Warn that active audit tasks open PRs nightly when they find issues.
-   - `find-security-issues` — Find security issues
-   - `find-bugs` — Find bugs
    - `improve-seo` — Improve SEO
    - `improve-performance` — Improve performance
+   - `translate-ui` — Translate UI
+
+   **Question 3 — "Find issues"** (header: `Find issues`):
+   Warn that active tasks here open PRs nightly when they find issues.
+   - `find-security-issues` — Find security issues
+   - `find-bugs` — Find bugs
 
    **Meta-option expansion.** `update-docs` is a picker shorthand, not a real task id. When building `selection[repo]`, expand it to the four individual doc task ids: `update-changelog`, `update-user-guide`, `document-decisions`, `suggest-improvements`. The allowlist and trigger config always use real task ids from `manifest.yml` — never the meta-option name.
 
@@ -138,19 +138,19 @@ Show a compact summary of the picker output and the default schedule, ask for co
 > | `owner/repo-a` | 8 selected (plans, docs, code-fixes) |
 > | `owner/repo-b` | 3 selected (find-bugs, improve-seo, improve-performance) |
 >
-> **Schedule** (Europe/Oslo): plans 01:00, docs+fixes 03:00, audits 05:00.
+> **Schedule** (Europe/Oslo): build 01:00, maintain 03:00, audit 05:00.
 >
 > Proceed?
 
-Default schedule → UTC cron: plans `0 23 * * *`, docs+code-fixes `0 1 * * *`, audits `0 3 * * *`. If the user wants to tweak schedule or timezone, do it now, then proceed on explicit confirmation. If they decline, stop.
+Default schedule → UTC cron: build `0 23 * * *`, maintain `0 1 * * *`, audit `0 3 * * *`. If the user wants to tweak schedule or timezone, do it now, then proceed on explicit confirmation. If they decline, stop.
 
 **Step 4 — Create the triggers.**
 
 **Which triggers get created.** Fetch `https://raw.githubusercontent.com/perandre/night-shift/main/manifest.yml` (you already fetched it for the picker in Step 2 — reuse the cache) and compute, per trigger, the set of task ids that belong to it by bundle membership:
 
-- **plans trigger** — tasks where `bundle: plans`.
-- **docs+code-fixes trigger** — tasks where `bundle: docs` OR `bundle: code-fixes`.
-- **audits trigger** — tasks where `bundle: audits`.
+- **build trigger** — tasks where `bundle: plans`.
+- **maintain trigger** — tasks where `bundle: docs` OR `bundle: code-fixes`.
+- **audit trigger** — tasks where `bundle: audits`.
 
 **Do not hardcode task ids in the skill.** Always derive them from `manifest.yml` so new tasks added later flow through automatically.
 
@@ -172,7 +172,7 @@ repos:
 </night-shift-config>
 ```
 
-For the docs+code-fixes trigger, list only the docs+code-fixes tasks each repo selected. For the audits trigger, list only the audits tasks each repo selected. **Never put a task id in a trigger's YAML that doesn't belong to that trigger's bundles** — the wrapper ignores mismatched ids, but keeping the YAML clean makes the trigger dashboard easier to read.
+For the maintain trigger, list only the docs+code-fixes tasks each repo selected. For the audit trigger, list only the audit tasks each repo selected. **Never put a task id in a trigger's YAML that doesn't belong to that trigger's bundles** — the wrapper ignores mismatched ids, but keeping the YAML clean makes the trigger dashboard easier to read.
 
 All trigger-level settings stay the same:
 
@@ -183,9 +183,9 @@ Use the `/schedule` skill or the `RemoteTrigger` tool, whichever is available. A
 - `enabled`: `true`
 - `sources[]`: the filtered repo list for each trigger (see "sources[] per trigger" above). **Do not** include `https://github.com/perandre/night-shift` — that repo is public and writing run logs to it would leak private project information.
 
-### Trigger 1 — Plans
+### Trigger 1 — Build
 
-- **name**: `night-shift-bundle-plans`
+- **name**: `night-shift-build`
 - **cron** (UTC, default): `0 23 * * *`
 - **prompt** (replace `<allowlist>` with the computed `<night-shift-config>` YAML block):
   ```
@@ -194,9 +194,9 @@ Use the `/schedule` skill or the `RemoteTrigger` tool, whichever is available. A
   <allowlist>
   ```
 
-### Trigger 2 — Docs + code-fixes
+### Trigger 2 — Maintain
 
-- **name**: `night-shift-bundle-docs-and-code-fixes`
+- **name**: `night-shift-maintain`
 - **cron** (UTC, default): `0 1 * * *`
 - **prompt** (replace `<allowlist>` with the computed `<night-shift-config>` YAML block):
   ```
@@ -205,9 +205,9 @@ Use the `/schedule` skill or the `RemoteTrigger` tool, whichever is available. A
   <allowlist>
   ```
 
-### Trigger 3 — Audits
+### Trigger 3 — Audit
 
-- **name**: `night-shift-bundle-audits`
+- **name**: `night-shift-audit`
 - **cron** (UTC, default): `0 3 * * *`
 - **prompt** (replace `<allowlist>` with the computed `<night-shift-config>` YAML block):
   ```
@@ -233,9 +233,9 @@ Once all triggers that should exist have been created, print:
 
 | Job | Schedule | Repos | Tasks |
 |---|---|---|---|
-| plans | <local time> | <N> | <M> selected |
-| docs + code-fixes | <local time> | <N> | <M> selected |
-| audits | <local time> | <N> | <M> selected |
+| build | <local time> | <N> | <M> selected |
+| maintain | <local time> | <N> | <M> selected |
+| audit | <local time> | <N> | <M> selected |
 
 (Skipped: <any triggers not created because no repo selected any of their
 tasks — list them here, or "none" if all three were created.)
@@ -299,7 +299,7 @@ If merging produces an empty `repos:` map for a trigger, **delete that trigger**
 
 ## Status
 
-List the user's current scheduled triggers via the `RemoteTrigger` tool with `action: "list"`. Filter to ones with names starting with `night-shift-bundle-`. Show name, cron (converted to local time), and the repos in `sources[]`.
+List the user's current scheduled triggers via the `RemoteTrigger` tool with `action: "list"`. Filter to ones with names starting with `night-shift-`. Show name, cron (converted to local time), and the repos in `sources[]`.
 
 ## Notes for Claude
 
