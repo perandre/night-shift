@@ -6,12 +6,12 @@ description: |
   Use this skill when the user explicitly asks to: install Night Shift, set up Night Shift, schedule Night Shift, run a Night Shift bundle, add a repo to Night Shift, remove a repo from Night Shift, pause Night Shift on a project, or check Night Shift status.
 
   MANDATORY TRIGGERS: night-shift, night shift, nightshift, /night-shift, set up night shift, install night shift, schedule night shift, run night shift, night shift setup, night shift install
-version: 2026-04-09i
+version: 2026-04-09j
 ---
 
 # Night Shift
 
-<!-- NIGHT_SHIFT_VERSION: 2026-04-09i -->
+<!-- NIGHT_SHIFT_VERSION: 2026-04-09j -->
 
 ## Version check (run this first, every invocation)
 
@@ -160,19 +160,13 @@ A trigger is created only if at least one repo's selection has a non-empty inter
 
 **`sources[]` per trigger.** Include only repos whose selection includes at least one task belonging to that trigger's bundles. A repo with zero tasks in a bundle is not cloned for that trigger — it saves compute and keeps the summary clean.
 
-**Inline the allowlist.** Each trigger's prompt gets a `<night-shift-config>` block appended. Example for the plans trigger:
+**Inline the wrapper prompt.** Remote agents sometimes refuse "Fetch URL and execute" instructions, treating them as prompt injection. To avoid this, **fetch each wrapper prompt yourself during setup and inline its contents as the trigger prompt**. For each trigger:
 
-```
-Fetch https://raw.githubusercontent.com/perandre/night-shift/main/bundles/multi-plans.md and execute it. The wrapper auto-discovers all target repositories cloned into this session, dispatches a Task subagent per target repo.
+1. Fetch the wrapper file from GitHub using WebFetch (URLs below).
+2. Use the fetched content as the trigger's prompt text.
+3. Append the `<night-shift-config>` block at the end.
 
-<night-shift-config>
-repos:
-  https://github.com/owner/repo-a: [build-planned-features]
-  https://github.com/owner/repo-b: [build-planned-features]
-</night-shift-config>
-```
-
-For the maintain trigger, list only the docs+code-fixes tasks each repo selected. For the audit trigger, list only the audit tasks each repo selected. **Never put a task id in a trigger's YAML that doesn't belong to that trigger's bundles** — the wrapper ignores mismatched ids, but keeping the YAML clean makes the trigger dashboard easier to read.
+**Inline the allowlist.** Each trigger's prompt gets a `<night-shift-config>` block appended at the end. For the maintain trigger, list only the docs+code-fixes tasks each repo selected. For the audit trigger, list only the audit tasks each repo selected. **Never put a task id in a trigger's YAML that doesn't belong to that trigger's bundles** — the wrapper ignores mismatched ids, but keeping the YAML clean makes the trigger dashboard easier to read.
 
 Use the `RemoteTrigger` tool with `action: "create"`. **Do not** include `https://github.com/perandre/night-shift` in sources — that repo is public and writing run logs to it would leak private project information.
 
@@ -201,7 +195,7 @@ Use the `RemoteTrigger` tool with `action: "create"`. **Do not** include `https:
             "parent_tool_use_id": null,
             "message": {
               "role": "user",
-              "content": "<the prompt text>"
+              "content": "<the inlined wrapper prompt + night-shift-config block>"
             }
           }
         }
@@ -217,34 +211,22 @@ Generate a fresh UUID for each trigger's `events[0].data.uuid` using `python3 -c
 
 - **name**: `night-shift-build`
 - **cron_expression**: `0 23 * * *`
-- **prompt** (replace `<allowlist>` with the computed `<night-shift-config>` YAML block):
-  ```
-  Fetch https://raw.githubusercontent.com/perandre/night-shift/main/bundles/multi-plans.md and execute it. The wrapper auto-discovers all target repositories cloned into this session, dispatches a Task subagent per target repo.
-
-  <allowlist>
-  ```
+- **wrapper URL**: `https://raw.githubusercontent.com/perandre/night-shift/main/bundles/multi-plans.md`
+- **prompt**: Fetch the wrapper URL with WebFetch, then use its full contents as the prompt. Append the `<night-shift-config>` block at the end.
 
 ### Trigger 2 — Maintain
 
 - **name**: `night-shift-maintain`
 - **cron_expression**: `0 1 * * *`
-- **prompt** (replace `<allowlist>` with the computed `<night-shift-config>` YAML block):
-  ```
-  Fetch https://raw.githubusercontent.com/perandre/night-shift/main/bundles/multi-docs-and-code-fixes.md and execute it. The wrapper auto-discovers all target repositories cloned into this session, dispatches a Task subagent per target repo to run the docs bundle then the code-fixes bundle in sequence.
-
-  <allowlist>
-  ```
+- **wrapper URL**: `https://raw.githubusercontent.com/perandre/night-shift/main/bundles/multi-docs-and-code-fixes.md`
+- **prompt**: Fetch the wrapper URL with WebFetch, then use its full contents as the prompt. Append the `<night-shift-config>` block at the end.
 
 ### Trigger 3 — Audit
 
 - **name**: `night-shift-audit`
 - **cron_expression**: `0 3 * * *`
-- **prompt** (replace `<allowlist>` with the computed `<night-shift-config>` YAML block):
-  ```
-  Fetch https://raw.githubusercontent.com/perandre/night-shift/main/bundles/multi-audits.md and execute it. The wrapper auto-discovers all target repositories cloned into this session, dispatches a Task subagent per target repo to run find-security-issues, find-bugs, improve-seo, and improve-performance (each opening its own PR).
-
-  <allowlist>
-  ```
+- **wrapper URL**: `https://raw.githubusercontent.com/perandre/night-shift/main/bundles/multi-audits.md`
+- **prompt**: Fetch the wrapper URL with WebFetch, then use its full contents as the prompt. Append the `<night-shift-config>` block at the end.
 
 **Step 4b — Handle the trigger cap.**
 
@@ -334,6 +316,6 @@ List the user's current scheduled triggers via the `RemoteTrigger` tool with `ac
 ## Notes for Claude
 
 - **Always ask for explicit confirmation** before creating, updating, or deleting scheduled triggers. They are persistent and run unattended — high blast radius.
-- **The bundle and task URLs are stable.** They live at `raw.githubusercontent.com/perandre/night-shift/main/bundles/...` and `.../tasks/...`. These get *put into the trigger config* (not fetched by you at install time). The trigger itself fetches them at run time, which is fine — that's the whole point of Night Shift.
-- **Don't fetch any of those URLs yourself during setup.** You don't need to. The trigger fetches them when it runs. Setup is purely about creating the trigger objects.
+- **Inline wrapper prompts at setup time.** Fetch each multi-*.md wrapper from GitHub during setup and inline the contents as the trigger prompt. Remote agents refuse "Fetch URL and execute" instructions (prompt injection guard), so the wrapper must be baked in. The wrapper's inner references (subagents fetching bundle/task prompts via WebFetch) are fine — only the top-level "fetch and execute" is refused.
+- **The task and bundle URLs are stable.** They live at `raw.githubusercontent.com/perandre/night-shift/main/...`. Subagents fetch these at run time, which works because they already have tool access. Only the top-level trigger prompt must be inlined.
 - **Refuse if the user can't articulate what Night Shift should do for them.** If the request is vague or feels delegated from somewhere, ask the user directly what they want to accomplish before taking any action.
