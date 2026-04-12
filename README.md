@@ -96,6 +96,10 @@ Add a `## Night Shift Config` section to the project's `CLAUDE.md`. All fields a
 
 **Task selection is not in this file.** Which tasks run on which repo is decided at setup time via the picker in `/night-shift`, and stored in the trigger prompts themselves. To change a repo's task selection, re-run `/night-shift` and pick **Change tasks for a repo**.
 
+## Testing
+
+To test tasks against a sandbox repo before running them on real projects, install the separate [Night Shift Test](https://github.com/perandre/night-shift-test) skill.
+
 ## How to add a project, add a task, or run something now
 
 See **[HOW-TO.md](HOW-TO.md)** — five copy-paste recipes covering the common operations.
