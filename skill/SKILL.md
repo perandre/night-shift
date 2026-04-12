@@ -11,7 +11,7 @@ version: 2026-04-09j
 
 # Night Shift
 
-<!-- NIGHT_SHIFT_VERSION: 2026-04-12g -->
+<!-- NIGHT_SHIFT_VERSION: 2026-04-12h -->
 
 ## Version check (run this first, every invocation)
 
@@ -197,13 +197,16 @@ A trigger is created only if at least one repo's selection has a non-empty inter
 
 Use the `RemoteTrigger` tool with `action: "create"`. **Do not** include `https://github.com/perandre/night-shift` in sources — that repo is public and writing run logs to it would leak private project information.
 
-**Fetching the environment_id (required, one-time).** The API requires a real `environment_id` — using `"default"` causes sessions to silently hang. To get it:
+**Fetching the environment_id (required, one-time).** The API requires a real `environment_id` — using `"default"` causes sessions to silently hang with no output. To get it:
 
 1. Call `RemoteTrigger` with `action: "list"`.
-2. If any triggers exist, grab `job_config.ccr.environment_id` from one of them.
-3. If **no triggers exist** (new user), ask the user to create a throwaway scheduled task from the claude.ai UI (any prompt, any repo). Then `list` again to capture the `environment_id`. The throwaway trigger can be deleted afterwards.
+2. If any triggers exist, grab `job_config.ccr.environment_id` from one of them — done.
+3. If **no triggers exist** (first-time setup), walk the user through a quick bootstrap:
+   - Tell them: *"I need to grab your environment ID. Go to **claude.ai/code → Scheduled → New**, enter any test prompt (e.g. 'say hello'), pick any repo, and save. Come back when done — I'll grab the ID and clean up the test trigger."*
+   - Wait for the user to confirm, then `list` again to capture `environment_id`.
+   - Delete the bootstrap trigger if the user wants (or repurpose it).
 
-Cache the `environment_id` for all triggers in this session — it's the same for every trigger on the account.
+This only happens once — the `environment_id` is stable per account. Cache it for all triggers in this session.
 
 **Exact API body structure.** The RemoteTrigger API nests settings inside `job_config.ccr`. Here is a complete example for one trigger — follow this structure exactly:
 
