@@ -11,7 +11,7 @@ version: 2026-04-09j
 
 # Night Shift
 
-<!-- NIGHT_SHIFT_VERSION: 2026-04-12a -->
+<!-- NIGHT_SHIFT_VERSION: 2026-04-12b -->
 
 ## Version check (run this first, every invocation)
 
@@ -370,8 +370,9 @@ This runbook is used when the user chooses **GitHub Actions** in Step 0b. The Sc
 > **Welcome to Night Shift (GitHub Actions mode).** I'll generate a workflow file for each repo that runs nightly maintenance on GitHub's infrastructure.
 >
 > **You'll need:**
-> - An `ANTHROPIC_API_KEY` added to your GitHub org or repo secrets
->   (Settings → Secrets and variables → Actions → New repository secret)
+> - An `ANTHROPIC_API_KEY` in your GitHub **org secrets** (one key covers all repos)
+>   (Org Settings → Secrets and variables → Actions → New organization secret)
+>   Or per-repo if you prefer: repo Settings → Secrets and variables → Actions
 >
 > **Which GitHub repositories should Night Shift manage?** Paste URLs, one per line or comma-separated.
 
@@ -399,35 +400,48 @@ Show the same compact summary as the Schedule backend's Step 3, but adapted:
 >
 > Proceed?
 
-**GA-Step 4 — Generate and install workflow files.**
+**GA-Step 4 — Generate workflow files and create PRs.**
 
 For each repo in `selection`:
 
-1. Check if the repo is cloned locally. Search sibling directories of the current working directory, and common locations (`~/Sites`, `~/Projects`, `~/Code`, `~/repos`, `~/dev`). If not found, ask the user for the local path.
+1. Build the task list string: join `selection[repo]` with commas.
 
-2. Build the task list string: join `selection[repo]` with commas.
+2. Generate the caller workflow file from the template at `https://raw.githubusercontent.com/perandre/night-shift/main/github-actions/caller-template.yml`. Fetch it once and cache. Replace the `tasks:` value with the repo's selected tasks. Replace the `cron:` value if the user customised the schedule. Replace `COMMIT_SHA` in the `uses:` line with the latest commit SHA from the night-shift repo (run `git ls-remote https://github.com/perandre/night-shift HEAD` to get it). This pins the workflow to a known-good version for supply-chain safety.
 
-3. Generate the caller workflow file from the template at `https://raw.githubusercontent.com/perandre/night-shift/main/github-actions/caller-template.yml`. Fetch it once and cache. Replace the `tasks:` value with the repo's selected tasks. Replace the `cron:` value if the user customised the schedule. Replace `COMMIT_SHA` in the `uses:` line with the latest commit SHA from the night-shift repo (run `git ls-remote https://github.com/perandre/night-shift HEAD` to get it). This pins the workflow to a known-good version for supply-chain safety.
-
-4. Write the file to `<repo-path>/.github/workflows/night-shift.yml`. Create the `.github/workflows/` directory if it doesn't exist.
-
-5. **Do not commit or push automatically.** Instead, collect all repos where files were written and present them in the summary so the user can review before committing.
+3. Create a PR on GitHub using the `gh` CLI — **no local clone needed**:
+   ```bash
+   # Create a new branch and commit the workflow file directly on GitHub
+   gh api repos/OWNER/REPO/git/refs/heads/main -q '.object.sha'  # get base SHA
+   gh api repos/OWNER/REPO/git/trees -f base_tree=BASE_SHA \
+     -f 'tree[][path]=.github/workflows/night-shift.yml' \
+     -f 'tree[][mode]=100644' \
+     -f 'tree[][type]=blob' \
+     -f 'tree[][content]=<FILE_CONTENT>'  # create tree
+   gh api repos/OWNER/REPO/git/commits \
+     -f message="Add Night Shift workflow" \
+     -f 'tree=TREE_SHA' -f 'parents[]=BASE_SHA'  # create commit
+   gh api repos/OWNER/REPO/git/refs -f ref=refs/heads/night-shift-setup \
+     -f sha=COMMIT_SHA  # create branch
+   gh pr create --repo OWNER/REPO --head night-shift-setup \
+     --title "Add Night Shift nightly maintenance" \
+     --body "Adds a GitHub Actions workflow that runs Night Shift nightly."
+   ```
+   This works for any repo the user has push access to, without needing it cloned locally.
 
 **GA-Step 5 — Summarise.**
 
 ```
 Night Shift (GitHub Actions) is ready.
 
-Workflow files written:
-  - /path/to/repo-a/.github/workflows/night-shift.yml (8 tasks)
-  - /path/to/repo-b/.github/workflows/night-shift.yml (3 tasks)
+PRs created:
+  - owner/repo-a#123 — Night Shift (8 tasks)
+  - owner/repo-b#124 — Night Shift (3 tasks)
 
 Next steps:
-  1. Review the generated workflow files
-  2. Add ANTHROPIC_API_KEY to your GitHub org/repo secrets
-     (Settings → Secrets and variables → Actions → New repository secret)
-  3. Commit and push the workflow files to enable Night Shift
-  4. Test with: Actions tab → Night Shift → Run workflow
+  1. Review and merge the PRs
+  2. Add ANTHROPIC_API_KEY to your GitHub org secrets (one key covers all repos)
+     (Org Settings → Secrets and variables → Actions → New organization secret)
+  3. Test with: Actions tab → Night Shift → Run workflow
 
 To pause Night Shift on a repo, disable the workflow in the Actions tab
 or add a .nightshift-skip file at the repo root.
@@ -437,10 +451,10 @@ or add a .nightshift-skip file at the repo root.
 
 For GitHub Actions repos, the task list lives in the workflow file's `tasks:` input (not in a trigger prompt). To modify:
 
-1. Find the repo's `.github/workflows/night-shift.yml` (local clone).
+1. Fetch the repo's `.github/workflows/night-shift.yml` via `gh api repos/OWNER/REPO/contents/.github/workflows/night-shift.yml -q '.content' | base64 -d`.
 2. Read the current `tasks:` value and parse it into a list.
 3. Run the picker (pre-checked with current selection for "change tasks").
-4. Update the `tasks:` value in the workflow file.
+4. Update the `tasks:` value and create a PR with the change (same Git tree API approach as GA-Step 4).
 5. Tell the user to commit and push the change.
 
 ## Notes for Claude
