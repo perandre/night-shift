@@ -16,35 +16,24 @@ Quick end-to-end testing for Night Shift tasks against a sandbox repo (`perandre
 
 When invoked, check if the user already specified what to do in their message (e.g., `/night-shift-test reset`). If they did, skip straight to that operation. Otherwise, use `AskUserQuestion` with **2 questions**:
 
-**Question 1** — "What do you want to do?" (header: `Action`, single-select):
-- **Run a task** — "Test a specific Night Shift task against the sandbox"
-- **Run a bundle** — "Test a full bundle (group of tasks) against the sandbox"
+Use a single `AskUserQuestion` with **1 question** (header: `What to test`, single-select):
+
 - **Run everything** — "Full pipeline: all 4 bundles in order"
+- **Run a bundle** — "Test a full bundle (group of tasks)"
+- **Run a task** — "Test one specific task"
 - **Manage sandbox** — "Reset, cleanup, or check status"
 
-**Question 2** — depends on Q1 answer. Since you can't branch mid-question, always show this second question (header: `Which one`, single-select):
-- **Find bugs** — "Look for subtle bugs, race conditions, edge cases"
-- **Find security issues** — "Scan for XSS, SQL injection, OWASP Top 10"
-- **Improve accessibility** — "Audit against WCAG 2.1 AA and fix violations"
-- **Add tests** — "Find coverage gaps and add tests"
+Then, based on the answer, ask a **follow-up** `AskUserQuestion` only if needed:
 
-If the user picked "Run a task" in Q1, use the Q2 answer directly.
+- **Run everything** → no follow-up, proceed directly.
 
-If the user picked "Run a bundle", "Run everything", or "Manage sandbox" in Q1 — **ignore Q2** and instead ask a follow-up `AskUserQuestion`:
-
-- For **Run a bundle** (header: `Bundle`, single-select):
+- **Run a bundle** → ask (header: `Bundle`, single-select):
   - **Plans** — "Build planned features + work on tagged issues"
   - **Docs** — "Changelog, user guide, ADRs, suggestions, weekly digest"
   - **Code fixes** — "Add tests, improve a11y, translate UI"
   - **Audits** — "Security, bugs, SEO, performance — opens one PR per finding"
 
-- For **Manage sandbox** (header: `Manage`, single-select):
-  - **Status** — "Show open PRs, branches, history, and issues"
-  - **Reset** — "Wipe sandbox back to clean seed state"
-  - **Cleanup** — "Close PRs and delete branches, keep current code"
-  - **Setup** — "Create the sandbox repo from scratch"
-
-If the user picked a task in Q2 that doesn't match the full list, or picked "Other", read `manifest.yml` and present ALL tasks not covered by Q2 as a follow-up `AskUserQuestion` (header: `More tasks`, single-select):
+- **Run a task** → ask (header: `Task`, single-select). Read `manifest.yml` and list all tasks:
   - **Build planned features** — "Implement the next pending phase from a plan file"
   - **Work on issues** — "Pick up GitHub Issues labeled night-shift"
   - **Update changelog** — "Add entries for recent user-facing changes"
@@ -52,9 +41,19 @@ If the user picked a task in Q2 that doesn't match the full list, or picked "Oth
   - **Document decisions** — "Capture architectural decisions as ADRs"
   - **Suggest improvements** — "Analyze codebase for improvement ideas"
   - **Weekly digest** — "Summarize the past week's Night Shift activity"
+  - **Add tests** — "Find coverage gaps and add tests"
+  - **Improve accessibility** — "Audit against WCAG 2.1 AA and fix violations"
   - **Translate UI** — "Extract hardcoded strings to translation files"
+  - **Find security issues** — "Scan for XSS, SQL injection, OWASP Top 10"
+  - **Find bugs** — "Look for subtle bugs, race conditions, edge cases"
   - **Improve SEO** — "Review metadata, OG tags, structured data"
   - **Improve performance** — "Review bundle size, images, queries"
+
+- **Manage sandbox** → ask (header: `Manage`, single-select):
+  - **Status** — "Show open PRs, branches, history, and issues"
+  - **Reset** — "Wipe sandbox back to clean seed state"
+  - **Cleanup** — "Close PRs and delete branches, keep current code"
+  - **Setup** — "Create the sandbox repo from scratch"
 
 Map the user's selection to the corresponding task id from `manifest.yml` and proceed.
 
