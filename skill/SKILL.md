@@ -11,7 +11,7 @@ version: 2026-04-09j
 
 # Night Shift
 
-<!-- NIGHT_SHIFT_VERSION: 2026-04-12e -->
+<!-- NIGHT_SHIFT_VERSION: 2026-04-12f -->
 
 ## Version check (run this first, every invocation)
 
@@ -204,9 +204,9 @@ Use the `RemoteTrigger` tool with `action: "create"`. **Do not** include `https:
   "name": "night-shift-build",
   "cron_expression": "0 23 * * *",
   "enabled": true,
-  "environment_id": "default",
   "job_config": {
     "ccr": {
+      "environment_id": "<real environment_id from an existing UI-created trigger — use RemoteTrigger list to find it; never use 'default'>",
       "session_context": {
         "model": "claude-opus-4-6[1m]",
         "allowed_tools": ["Bash", "Read", "Write", "Edit", "Glob", "Grep", "WebFetch", "WebSearch"],
