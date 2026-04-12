@@ -28,6 +28,8 @@ on:
     secrets:
       ANTHROPIC_API_KEY:
         required: true
+      SLACK_WEBHOOK_URL:
+        required: false
 
 jobs:
   night-shift:
@@ -55,6 +57,7 @@ jobs:
           git config user.email "night-shift[bot]@users.noreply.github.com"
 
       - name: Run Night Shift
+        id: night-shift
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           GH_TOKEN: ${{ github.token }}
@@ -123,8 +126,75 @@ jobs:
 
           echo "${OUTPUT}"
 
+          # Save output for later steps
+          {
+            echo 'NIGHT_SHIFT_OUTPUT<<EOFMARKER'
+            echo "${OUTPUT}"
+            echo 'EOFMARKER'
+          } >> "$GITHUB_ENV"
+
           # Write summary to GitHub Actions UI
           cat >> "$GITHUB_STEP_SUMMARY" << 'HEADER'
           ## Night Shift Run Summary
           HEADER
           echo "${OUTPUT}" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Notify Slack (success)
+        if: success() && env.SLACK_WEBHOOK_URL != ''
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        run: |
+          REPO="${{ github.repository }}"
+          REPO_NAME="${REPO#*/}"
+          DATE="$(date -u +%Y-%m-%d)"
+
+          # Extract the summary table from output (lines starting with |)
+          SUMMARY_TABLE=$(echo "${NIGHT_SHIFT_OUTPUT}" | grep '^|' || echo "No summary table found.")
+
+          PAYLOAD=$(cat <<SLACK
+          {
+            "blocks": [
+              {
+                "type": "section",
+                "text": {
+                  "type": "mrkdwn",
+                  "text": "*Night Shift — ${REPO_NAME}*  ·  ${DATE}\n\n\`\`\`\n${SUMMARY_TABLE}\n\`\`\`"
+                }
+              }
+            ]
+          }
+          SLACK
+          )
+
+          curl -sf -X POST -H 'Content-type: application/json' \
+            --data "${PAYLOAD}" \
+            "${SLACK_WEBHOOK_URL}"
+
+      - name: Notify Slack (failure)
+        if: failure() && env.SLACK_WEBHOOK_URL != ''
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        run: |
+          REPO="${{ github.repository }}"
+          REPO_NAME="${REPO#*/}"
+          DATE="$(date -u +%Y-%m-%d)"
+          RUN_URL="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+
+          PAYLOAD=$(cat <<SLACK
+          {
+            "blocks": [
+              {
+                "type": "section",
+                "text": {
+                  "type": "mrkdwn",
+                  "text": "*Night Shift — ${REPO_NAME}*  ·  ${DATE}\n\n:x: *Run failed.* <${RUN_URL}|View logs>"
+                }
+              }
+            ]
+          }
+          SLACK
+          )
+
+          curl -sf -X POST -H 'Content-type: application/json' \
+            --data "${PAYLOAD}" \
+            "${SLACK_WEBHOOK_URL}"
