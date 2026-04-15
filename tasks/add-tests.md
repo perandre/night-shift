@@ -1,6 +1,6 @@
 # Tests
 
-Find coverage gaps and add tests following the project's existing patterns. **One PR with up to 10 new tests.**
+Find coverage gaps and add both **unit tests** and **e2e tests** following the project's existing patterns. **One PR with up to 10 new tests total.**
 
 ## Read project config first
 Read `CLAUDE.md` for **Night Shift Config**: test command, build command, default branch, push protocol. If the dispatcher passed `allowed_tasks` and `add-tests` is not in it, exit silently.
@@ -19,11 +19,25 @@ Without an `app_path` (single-app repo), behave as before: walk the whole repo, 
    gh pr list --search "nightshift/tests in:title" --state open
    ```
    If one exists for the same app, exit silently — do not stack PRs.
-2. Run the scoped test command once to confirm a green baseline. If it fails, **exit immediately** — do not try to fix unrelated breakage tonight.
-3. Inspect the existing test layout **under `<app_path>`** (or repo-wide when unscoped). Mimic the project's chosen framework, file location convention, and assertion style exactly.
-4. Identify **up to 10** untested or under-tested units (module / route / component / utility) **inside `<app_path>`** where tests would be high-value and low-risk to write. Prefer pure logic over UI / network code. Stop at 10 even if more gaps exist.
-5. Write tests for each identified unit. Follow project conventions for mocks, fixtures, and naming. Do not touch files outside `<app_path>` when scoped.
+
+2. **Understand the project's testing approach before writing anything.** Before creating any tests:
+   - Look for test plans or testing guides in `docs/`, `TESTING.md`, `CLAUDE.md`, or similar markdown files that describe how tests should be structured.
+   - Scan existing test files to understand frameworks, file locations, naming conventions, helper utilities, fixtures, and assertion style.
+   - For **unit tests**: identify the framework (Jest, Vitest, pytest, Go testing, etc.) and mimic the existing patterns exactly.
+   - For **e2e tests**: check if Playwright, Cypress, or another e2e framework is already set up. If no e2e framework exists, use **Playwright** as the default. Check for existing page objects, test helpers, or base fixtures to build on.
+
+3. Run the scoped test command once to confirm a green baseline. If it fails, **exit immediately** — do not try to fix unrelated breakage tonight.
+
+4. Identify **up to 10** coverage gaps across the application — aim for a mix of both types:
+   - **Unit tests** for untested utilities, business logic, data transformations, hooks, components, API handlers, or model methods.
+   - **E2e tests** for untested user flows, critical paths, form submissions, navigation, or interactive features.
+   
+   Prioritize areas with no existing test coverage. Stop at 10 even if more gaps exist.
+
+5. Write tests for each identified gap. Follow the conventions discovered in step 2. Do not touch files outside `<app_path>` when scoped.
+
 6. Run the scoped **test suite** and the scoped **build command** after each test file. If a test is flaky or fails, revert that test file and continue with the next unit. Do not commit failing tests.
+
 7. Collect all passing tests in one branch (include app slug when scoped):
    ```
    # scoped:
@@ -38,8 +52,11 @@ Without an `app_path` (single-app repo), behave as before: walk the whole repo, 
    ## Summary
    Found coverage gaps and added tests for <N> units.
 
-   ## Tests added
+   ## Unit tests added
    - <bullet per test file, naming the unit under test>
+
+   ## E2e tests added
+   - <bullet per test file, describing the user flow covered>
 
    ## Verification
    - All tests pass locally
@@ -50,4 +67,4 @@ Without an `app_path` (single-app repo), behave as before: walk the whole repo, 
 ## Idempotency
 - One sweep PR open at a time.
 - Do not modify production code in this task. If a test reveals a bug, leave a note in `docs/SUGGESTIONS.md` and stop.
-- If no meaningful coverage gaps remain on the configured key pages, exit silently.
+- If no meaningful coverage gaps remain, exit silently.
