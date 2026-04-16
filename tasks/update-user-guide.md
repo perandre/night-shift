@@ -32,21 +32,24 @@ Discover whatever exists — don't limit to this list.
 - docs/SUGGESTIONS.md (managed by `suggest-improvements`)
 - CLAUDE.md, LICENSE*, .github/**, *-PLAN.md
 
-### 2. Check each doc for staleness
+### 2. Rank docs by staleness and pick ONE
 For each discovered doc:
 
 1. Read the file to understand what it documents.
 2. Identify the source files it covers (routes, models, configs, components, etc.).
 3. Compare the doc's last update (`git log -1 --format=%ci -- <doc-path>`) against changes in those source files (`git log --since=<doc-last-update> --oneline -- <relevant-paths>`).
-4. If the source code hasn't changed, skip the doc.
+4. If the source code hasn't changed, the doc is not stale — drop it from consideration.
 
-### 3. Update stale docs
-For each stale doc:
+After scoring, pick the **single stalest doc** (largest gap between its last update and the volume/significance of subsequent code changes). If nothing is clearly stale, exit silently.
+
+### 3. Update the selected doc
+For the one chosen doc:
 
 1. Re-read the current source code the doc covers.
 2. Update sections that are out of date: new features, renamed concepts, changed architecture, removed components, new dependencies, new routes.
 3. Preserve the doc's existing structure, tone, and language. Do not rewrite sections that are still accurate.
 4. Write in the configured **doc language**.
+5. Do not touch any other doc file in this run — even if you notice other staleness. Future runs will pick them up.
 
 For **user manuals** specifically, also walk UI routes and key components to document:
 - What the user sees
@@ -55,18 +58,22 @@ For **user manuals** specifically, also walk UI routes and key components to doc
 
 **Do not create new doc files** except for the user manual (`USER-MANUAL.md`) when the app has UI routes and no manual exists yet.
 
-**Cap at 5 doc files per run** to keep diffs reviewable.
+## One doc file per run
+Update **exactly one** doc file per run. Broad multi-file doc sweeps tend to get rejected as a unit because one bad section poisons the whole PR — lessons learned from past closed PRs. Pick the single stalest doc (largest gap between its last update and the changes in the code it covers) and update only that one. Leave the rest for subsequent runs; they will be picked up naturally on future nights.
+
+If no single doc is clearly stale, exit silently.
 
 ## Commit
 ```
 # scoped:
-git commit -m "nightshift(docs): <app_path> — refresh documentation"
+git commit -m "nightshift(docs): <app_path> — refresh <doc-filename>"
 # unscoped:
-git commit -m "nightshift(docs): refresh documentation"
+git commit -m "nightshift(docs): refresh <doc-filename>"
 ```
 Push using the project's push protocol.
 
 ## Idempotency
+- One doc file per run — even if multiple are stale, pick the stalest and leave the rest.
 - Skip docs whose source code has not changed since the doc's last update.
 - Never remove sections — only update or add content.
 - If nothing is stale, exit silently.

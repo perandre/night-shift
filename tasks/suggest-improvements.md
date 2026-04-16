@@ -10,26 +10,44 @@ Only write a suggestion if you are confident it would clearly help the project. 
 
 **Scoping.** This task is `scope: repo` in `manifest.yml`. Suggestions span the whole product, so even in a monorepo with `apps:` configured, this task runs **once per repo**, not once per app. Ignore any `app_path` passed by the multi-runner — the multi-docs-and-code-fixes wrapper will only dispatch this task during the first work-item of a repo.
 
+## One mode per run — never mix housekeeping with net-new
+Each run of this task does **exactly one** of the following, never both in the same PR:
+
+- **Mode A — add new ideas:** propose up to 3 net-new suggestions and commit only those additions.
+- **Mode B — update implementation status:** mark existing suggestions as implemented / obsolete based on current code, and commit only those status changes.
+
+Pick the mode before writing anything. If you notice work that fits the other mode, leave it for the next run. Mixed PRs are hard to review and tend to get rejected as a unit — lessons learned from past closed PRs. The commit message and PR body must announce the mode so reviewers know what they're looking at.
+
 ## Steps
 1. Open or create `docs/SUGGESTIONS.md` at the **repo root**.
-2. Read existing suggestions so you don't repeat them.
-3. Look for opportunities across:
-   - UX rough edges (confusing flows, missing feedback states, unclear errors)
-   - Quick wins (small features that would clearly help users)
-   - Tech-debt that is starting to hurt velocity
-   - Missing observability / monitoring
-   - Onboarding gaps for new users
-4. For each suggestion, write:
-   - **Title** (1 line)
-   - **Why** (the user/business value, 2-3 sentences)
-   - **Effort** (rough size: S / M / L)
-   - **Files involved** (so a human can find their way in)
-5. Cap output at **3 new suggestions per night**.
+2. Read existing suggestions carefully.
+3. **Pick a mode.** Prefer **Mode B (status update)** when several existing suggestions look like they may already be implemented — stale suggestions are worse noise than a missing new one. Otherwise use **Mode A (new ideas)**.
+4. **If Mode A — add new ideas:**
+   - Look for opportunities across:
+     - UX rough edges (confusing flows, missing feedback states, unclear errors)
+     - Quick wins (small features that would clearly help users)
+     - Tech-debt that is starting to hurt velocity
+     - Missing observability / monitoring
+     - Onboarding gaps for new users
+   - For each suggestion, write:
+     - **Title** (1 line)
+     - **Why** (the user/business value, 2-3 sentences)
+     - **Effort** (rough size: S / M / L)
+     - **Files involved** (so a human can find their way in)
+   - Cap at **3 new suggestions per night**. Do not touch the status of existing suggestions in this mode.
+5. **If Mode B — update status:**
+   - Walk existing suggestions and verify each against current code: is it implemented, partially implemented, or obsolete?
+   - Mark implemented ones using the file's existing convention (e.g. `**Status: Implemented (YYYY-MM-DD)**`, a checkbox, or strikethrough — match what's already there).
+   - Do not add, rewrite, or rephrase any suggestion text. Do not add new suggestions in this mode.
+   - If no existing suggestion has changed status, exit silently.
 
 ## Commit
 ```
-git add docs/SUGGESTIONS.md
+# Mode A:
 git commit -m "nightshift(suggestions): add <N> ideas"
+
+# Mode B:
+git commit -m "nightshift(suggestions): mark <N> implemented"
 ```
 Push using the project's push protocol.
 
