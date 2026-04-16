@@ -15,6 +15,9 @@ Read `CLAUDE.md` for **Night Shift Config**: doc/UI language(s), translation fil
 
 Without an `app_path`, behave as before.
 
+## High bar — default is silent
+Only open a PR when there are clearly user-visible hardcoded strings that belong in the translation files. Do not touch strings that are intentionally not localized (brand names, error codes, debug-only text). **If the app is broadly localized, exit silently** — a tiny sweep PR is more churn than signal.
+
 ## Steps
 1. Check for an existing open night-shift i18n PR for this app (or repo when unscoped):
    ```

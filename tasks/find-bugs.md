@@ -13,6 +13,9 @@ Read `CLAUDE.md` for **Night Shift Config**: test command, build command, defaul
 
 Without an `app_path`, behave as before (whole repo, no app slug in branch / PR title).
 
+## High bar — default is silent
+Only open a PR for a bug that is clearly real, clearly the codebase's fault (not a speculative edge case), and whose fix would clearly help the project. Marginal or stylistic concerns, theoretical edge cases that can't actually occur, and hypothetical races you can't reproduce from the code do **not** qualify. **Zero bugs is the correct outcome on most nights** — do not invent or inflate issues to stay busy.
+
 ## Steps
 1. Check for existing open night-shift bug PRs to avoid duplicates (scope the search to this app when scoped):
    ```

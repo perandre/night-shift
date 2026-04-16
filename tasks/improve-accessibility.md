@@ -14,6 +14,9 @@ Read `CLAUDE.md` for **Night Shift Config**: key pages, test command, build comm
 
 Without an `app_path`, behave as before.
 
+## High bar — default is silent
+Only open a PR for violations that are clearly demonstrable from the code and whose fix clearly improves accessibility for real users. Skip hypothetical issues, cosmetic contrast tweaks on already-compliant text, and anything that requires guessing at intent. **If the configured key pages are broadly compliant, exit silently** — a half-empty sweep PR is worse than no PR.
+
 ## Steps
 1. Check for an existing open night-shift a11y PR for this app (or repo when unscoped):
    ```

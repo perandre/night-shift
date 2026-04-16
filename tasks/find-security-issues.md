@@ -13,6 +13,9 @@ Read `CLAUDE.md` for **Night Shift Config**: test command, build command, defaul
 
 Without an `app_path`, behave as before (whole repo, no app slug).
 
+## High bar — default is silent
+Only open a PR for a clearly demonstrable vulnerability with a clearly correct fix. Speculative findings, defense-in-depth wishlist items, and "maybe an attacker could…" patterns do **not** qualify. A false-positive security PR erodes trust and wastes reviewer time. **Zero findings is the correct outcome on most nights.**
+
 ## Pre-step — repo-wide secret scan (skip when the runner says so)
 Regardless of app scope, once per repo per night, grep the whole repo for accidentally committed secrets: API keys, tokens, private URLs, `NEXT_PUBLIC_*` with sensitive values. If found, file the fix under a plain `nightshift/security-secrets-YYYY-MM-DD` branch (no app slug — it's a repo-wide concern) and return.
 

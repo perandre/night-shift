@@ -14,6 +14,9 @@ Read `CLAUDE.md` for **Night Shift Config**: key pages, test command, build comm
 
 Without an `app_path`, behave as before (top-level key pages, whole repo, no app slug).
 
+## High bar — default is silent
+Only open a PR when you can point to a concrete, low-risk win that will clearly help the project. Micro-optimizations, cosmetic refactors dressed up as perf work, and speculative "this might be faster" changes do **not** qualify. **Zero changes is the correct outcome on most nights** — leave bigger or riskier ideas as a note in `docs/SUGGESTIONS.md` instead.
+
 ## Steps
 1. Check for an existing open night-shift performance PR for this app (or repo when unscoped):
    ```

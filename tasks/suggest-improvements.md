@@ -5,6 +5,9 @@ Analyze the codebase for improvement ideas to pitch to the client. This is a **d
 ## Read project config first
 Read `CLAUDE.md` for **Night Shift Config**: doc language, push protocol. If the dispatcher passed `allowed_tasks` and `suggest-improvements` is not in it, exit silently.
 
+## High bar — default is silent
+Only write a suggestion if you are confident it would clearly help the project. A mediocre suggestion wastes the client's reading time and dilutes the list. One strong suggestion beats three weak ones. **Zero new suggestions is a correct outcome on most nights** — do not pad to hit a number.
+
 **Scoping.** This task is `scope: repo` in `manifest.yml`. Suggestions span the whole product, so even in a monorepo with `apps:` configured, this task runs **once per repo**, not once per app. Ignore any `app_path` passed by the multi-runner — the multi-docs-and-code-fixes wrapper will only dispatch this task during the first work-item of a repo.
 
 ## Steps

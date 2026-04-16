@@ -14,6 +14,9 @@ Read `CLAUDE.md` for **Night Shift Config**: key pages, doc/UI language, test co
 
 Without an `app_path`, behave as before.
 
+## High bar — default is silent
+Only open a PR for clear, real SEO issues on genuinely public pages. Do not add metadata just because something could be slightly more descriptive, do not rewrite already-reasonable titles, and do not touch authenticated routes beyond `robots`/`noindex`. **If metadata is broadly in good shape, exit silently.**
+
 ## Steps
 1. Check for an existing open night-shift SEO PR for this app (or repo when unscoped):
    ```
