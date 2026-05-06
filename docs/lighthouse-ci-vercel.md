@@ -1,6 +1,6 @@
-# Lighthouse CI on a Next.js + Vercel project
+# Lighthouse CI on Vercel preview deploys
 
-Step-by-step setup for adding Lighthouse CI (LHCI) to a Next.js app deployed on Vercel, running on every preview deploy and posting scores back to the PR. Pilot reference: `frontkom/merkur-frontend` PR #94.
+Step-by-step setup for adding Lighthouse CI (LHCI) on top of Vercel preview deploys, running on every preview deploy and posting scores back to the PR. Works with any framework Vercel supports — Next.js, Astro, Remix, Nuxt, plain static, etc. The trigger is Vercel's `deployment_status` GitHub event, which is platform-level, not framework-level. Pilot reference: `frontkom/merkur-frontend` PR #94 (Next.js).
 
 The setup avoids the five mistakes that typically bite first-time LHCI users — see **Gotchas** below.
 
