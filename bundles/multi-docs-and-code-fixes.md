@@ -91,12 +91,12 @@ If a subagent dispatch itself fails, record `failed | docs: — | code-fixes: �
 
 After all work-items for this repo have completed, run the **label sweep** then the **PR body sweep** in the repo. The body sweep finds PRs by label, so the label sweep must run first — otherwise PRs whose subagent dropped `--label night-shift` are invisible to the body sweep. Both are idempotent.
 
-**Label sweep** — adds `night-shift` to any open PR whose title starts with `night-shift/` but is missing the label:
+**Label sweep** — adds `night-shift` to any open PR whose title matches `^night-shift/` (the per-task contract) **or** `^chore:.*[Nn]ight[- ]?[Ss]hift` (external bundle/digest PRs that consolidate Night Shift PRs) but is missing the label. `--limit 1000` defends against `gh pr list`'s 30-default silently dropping recently-opened PRs in busy repos:
 
 ```bash
 ( cd "$REPO_PATH" && \
-  gh pr list --state open --json number,title,labels --jq '
-    .[] | select(.title | startswith("night-shift/"))
+  gh pr list --state open --limit 1000 --json number,title,labels --jq '
+    .[] | select(.title | test("^night-shift/|^chore:.*[Nn]ight[- ]?[Ss]hift"; "i"))
         | select((.labels | map(.name)) | index("night-shift") | not)
         | .number' \
     | xargs -I{} -r gh pr edit {} --add-label night-shift )
@@ -106,7 +106,7 @@ After all work-items for this repo have completed, run the **label sweep** then 
 
 ```bash
 ( cd "$REPO_PATH" && \
-  for pr in $(gh pr list --label night-shift --state open --json number --jq '.[].number'); do
+  for pr in $(gh pr list --label night-shift --state open --limit 1000 --json number --jq '.[].number'); do
     body=$(gh pr view "$pr" --json body -q .body)
     case "$body" in
       *'\n'*)
