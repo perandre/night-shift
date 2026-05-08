@@ -87,18 +87,23 @@ If a subagent dispatch itself throws an unrecoverable error, record `failed | di
 
 ## Label sweep (wrapper-level safety net) — run BEFORE the body sweep
 
-After all work-items for a repo have been dispatched and their one-line results captured, the wrapper first runs a **label sweep** so the body sweep below (which finds PRs by label) sees every Night Shift PR. Subagents sometimes drop `--label night-shift` on `gh pr create` or skip the post-create `--add-label` step; this sweep adds the missing label by matching on the Night Shift PR title prefix instead. Idempotent — only edits PRs that don't already carry the label.
+After all work-items for a repo have been dispatched and their one-line results captured, the wrapper first runs a **label sweep** so the body sweep below (which finds PRs by label) sees every Night Shift PR. Subagents sometimes drop `--label night-shift` on `gh pr create` or skip the post-create `--add-label` step; this sweep adds the missing label by matching on the Night Shift PR title pattern instead. Idempotent — only edits PRs that don't already carry the label.
 
 ```bash
 ( cd "$REPO_PATH" && \
-  gh pr list --state open --json number,title,labels --jq '
-    .[] | select(.title | startswith("night-shift/"))
+  gh pr list --state open --limit 1000 --json number,title,labels --jq '
+    .[] | select(.title | test("^night-shift/|^chore:.*[Nn]ight[- ]?[Ss]hift"; "i"))
         | select((.labels | map(.name)) | index("night-shift") | not)
         | .number' \
     | xargs -I{} -r gh pr edit {} --add-label night-shift )
 ```
 
-Why title-prefix, not label: by definition the only way a PR can be missing the label is if the subagent failed to apply it — so a label-based filter would miss exactly the cases this sweep exists to repair. The `night-shift/` title prefix is the contract every task already enforces (`night-shift/plan:`, `night-shift/bug:`, `night-shift/issue:`, etc.), so it's a reliable secondary key.
+Why title-pattern, not label: by definition the only way a PR can be missing the label is if the subagent failed to apply it — so a label-based filter would miss exactly the cases this sweep exists to repair. Two title patterns are matched:
+
+- `^night-shift/` — the per-task contract every Night Shift task enforces (`night-shift/plan:`, `night-shift/bug:`, `night-shift/issue:`, etc.). This is the primary key.
+- `^chore:.*[Nn]ight[- ]?[Ss]hift` — covers external bundling/digest PRs that consolidate multiple Night Shift PRs (titles like `chore: bundle 5 safe Night Shift PRs` or `chore: night-shift digest`). Night Shift itself does not produce these; some teams open them by hand or via separate tooling. The sweep labels them so the audit trail (`gh pr list --label night-shift`) stays complete.
+
+Why `--limit 1000`: `gh pr list` defaults to 30 results, which silently dropped PRs in busy repos and let the sweep miss recently-opened Night Shift PRs. The cap is well above any realistic open-PR count for a single repo.
 
 Each `multi-*.md` wrapper inlines this exact block in its per-repo loop, **immediately before** the body sweep below.
 
@@ -108,7 +113,7 @@ After the label sweep above, the wrapper runs a **PR body sweep** in that repo t
 
 ```bash
 ( cd "$REPO_PATH" && \
-  for pr in $(gh pr list --label night-shift --state open --json number --jq '.[].number'); do
+  for pr in $(gh pr list --label night-shift --state open --limit 1000 --json number --jq '.[].number'); do
     body=$(gh pr view "$pr" --json body -q .body)
     case "$body" in
       *'\n'*)
@@ -185,6 +190,11 @@ Always `night-shift/<area>: <description>`. Slash + colon. The `<area>` is the t
 
 ### Labels (created at wrapper level, applied at task level)
 Every `gh pr create` call must add the single `night-shift` label. The bundle is already obvious from the PR title (`night-shift/plan:`, `night-shift/bug:`, etc.), so per-bundle sub-labels (`night-shift:plans` etc.) are intentionally **not** used — one label is enough to filter every Night Shift PR.
+
+**Deprecated sub-labels (`night-shift:plans`, `night-shift:docs`, `night-shift:code-fixes`, `night-shift:audits`)** existed in earlier versions and may still appear on older closed PRs in some repos. Do **not** apply them going forward; the single `night-shift` label is the only convention. The label sweep below does not retroactively remove deprecated sub-labels — they remain on historical PRs as-is.
+
+### One PR per task — no framework-level bundling
+Night Shift opens **one PR per task per (repo, app)** — there is no consolidation, digest, or bundling step in the framework. If a target repo shows a single PR titled like `chore: bundle 5 safe Night Shift PRs` or `chore: night-shift digest` collapsing multiple individual PRs together, that PR was created externally (by hand, by a separate housekeeping bot, or by a custom script in that repo). The label sweep above will tag it `night-shift` so the audit trail stays complete, but this framework neither creates nor manages such consolidation PRs. Per-repo bundling strategy is a deliberate choice the operating team makes outside of Night Shift; it is not configured in `manifest.yml` or any wrapper.
 
 **Label creation is a wrapper precondition, not a per-task step.** Each multi-runner wrapper, before dispatching any subagents for a given repo, runs the following block once per repo (after `cd`-ing in for the dirty / opt-out checks):
 
