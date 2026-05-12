@@ -66,7 +66,7 @@ bundles:
     stop_on_failure: false
   shopify:
     title: Shopify-specific automation
-    description: Vendor-update cherry-picks (Horizon/Dawn/Skeleton releases) and pre-flight migration-risk audits. Opt-in for Shopify projects only — set `bundles: [shopify]` in CLAUDE.md Night Shift Config.
+    description: "Vendor-update cherry-picks (Horizon/Dawn/Skeleton releases) and pre-flight migration-risk audits. Opt-in for Shopify projects only — set `bundles: [shopify]` in CLAUDE.md Night Shift Config."
     schedule_hint: weekly
     parallelism: independent
     stop_on_failure: false
