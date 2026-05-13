@@ -124,6 +124,14 @@
     background: var(--teal);
     box-shadow: 0 0 12px var(--teal);
   }
+  .meta .refresh.preview::before {
+    background: var(--sun);
+    box-shadow: 0 0 12px var(--sun);
+  }
+  .meta .refresh.error::before {
+    background: var(--coral);
+    box-shadow: 0 0 12px var(--coral);
+  }
 
   /* Headline */
   .headline {
@@ -318,7 +326,7 @@
       </div>
       <div class="meta">
         <span class="clock" id="clock"></span>
-        <span class="refresh" id="refresh">updated <span id="updated">just now</span></span>
+        <span class="refresh" id="refresh" title="Data source"><span id="mode-label">loading…</span> · <span id="updated">just now</span></span>
       </div>
     </header>
 
@@ -357,6 +365,31 @@
       <span>Auto-refresh every 60s · <a href="../">Back to Night Shift</a></span>
     </footer>
   </div>
+
+<!--
+  Seed data embedded so the dashboard renders something useful when opened
+  directly from disk (file://) — browsers block fetch() on local files.
+  When the page is served over HTTP/HTTPS (the GitHub Pages URL or a local
+  server), the fetched runs.jsonl supersedes this on first refresh. The
+  inline copy can drift; the live JSONL is the source of truth.
+-->
+<script type="application/x-ndjson" id="seed-data">
+{"repo":"frontkom/night-shift","timestamp":"2026-05-08T02:14:00Z","run_url":"https://github.com/frontkom/night-shift/actions/runs/seed-001","backend":"github-actions","bundles":{"plans":{"status":"ok","prs":["https://github.com/frontkom/night-shift/pull/11"],"commits":4},"docs":{"status":"silent","prs":[],"commits":0},"code-fixes":{"status":"skipped","prs":[],"commits":0},"audits":{"status":"skipped","prs":[],"commits":0}},"duration_seconds":2280,"model":"claude-opus-4-7"}
+{"repo":"frontkom/night-shift","timestamp":"2026-05-09T02:11:00Z","run_url":"https://github.com/frontkom/night-shift/actions/runs/seed-002","backend":"github-actions","bundles":{"plans":{"status":"silent","prs":[],"commits":0},"docs":{"status":"ok","prs":["https://github.com/frontkom/night-shift/pull/12"],"commits":2},"code-fixes":{"status":"skipped","prs":[],"commits":0},"audits":{"status":"skipped","prs":[],"commits":0}},"duration_seconds":1490,"model":"claude-opus-4-7"}
+{"repo":"frontkom/night-shift","timestamp":"2026-05-10T02:09:00Z","run_url":"https://github.com/frontkom/night-shift/actions/runs/seed-003","backend":"github-actions","bundles":{"plans":{"status":"ok","prs":[],"commits":1},"docs":{"status":"silent","prs":[],"commits":0},"code-fixes":{"status":"skipped","prs":[],"commits":0},"audits":{"status":"skipped","prs":[],"commits":0}},"duration_seconds":1980,"model":"claude-opus-4-7"}
+{"repo":"frontkom/night-shift","timestamp":"2026-05-12T02:13:00Z","run_url":"https://github.com/frontkom/night-shift/actions/runs/seed-004","backend":"github-actions","bundles":{"plans":{"status":"ok","prs":["https://github.com/frontkom/night-shift/pull/12"],"commits":3},"docs":{"status":"silent","prs":[],"commits":0},"code-fixes":{"status":"skipped","prs":[],"commits":0},"audits":{"status":"skipped","prs":[],"commits":0}},"duration_seconds":3120,"model":"claude-opus-4-7"}
+{"repo":"frontkom/night-shift","timestamp":"2026-05-13T02:14:00Z","run_url":"https://github.com/frontkom/night-shift/actions/runs/seed-005","backend":"github-actions","bundles":{"plans":{"status":"silent","prs":[],"commits":0},"docs":{"status":"ok","prs":["https://github.com/frontkom/night-shift/pull/13"],"commits":1},"code-fixes":{"status":"skipped","prs":[],"commits":0},"audits":{"status":"skipped","prs":[],"commits":0}},"duration_seconds":2580,"model":"claude-opus-4-7"}
+{"repo":"perandre/ns","timestamp":"2026-05-08T03:02:00Z","run_url":"https://github.com/perandre/ns/actions/runs/seed-301","backend":"github-actions","bundles":{"plans":{"status":"silent","prs":[],"commits":0},"docs":{"status":"ok","prs":["https://github.com/perandre/ns/pull/22"],"commits":1},"code-fixes":{"status":"skipped","prs":[],"commits":0},"audits":{"status":"skipped","prs":[],"commits":0}},"duration_seconds":740,"model":"claude-opus-4-7"}
+{"repo":"perandre/ns","timestamp":"2026-05-11T03:01:00Z","run_url":"https://github.com/perandre/ns/actions/runs/seed-302","backend":"github-actions","bundles":{"plans":{"status":"silent","prs":[],"commits":0},"docs":{"status":"silent","prs":[],"commits":0},"code-fixes":{"status":"skipped","prs":[],"commits":0},"audits":{"status":"ok","prs":["https://github.com/perandre/ns/pull/24"],"commits":1}},"duration_seconds":1180,"model":"claude-opus-4-7"}
+{"repo":"perandre/ns","timestamp":"2026-05-13T03:03:00Z","run_url":"https://github.com/perandre/ns/actions/runs/seed-303","backend":"github-actions","bundles":{"plans":{"status":"silent","prs":[],"commits":0},"docs":{"status":"ok","prs":["https://github.com/perandre/ns/pull/25"],"commits":1},"code-fixes":{"status":"skipped","prs":[],"commits":0},"audits":{"status":"skipped","prs":[],"commits":0}},"duration_seconds":1340,"model":"claude-opus-4-7"}
+{"repo":"example/storefront","timestamp":"2026-05-08T02:32:00Z","run_url":"https://github.com/example/storefront/actions/runs/seed-101","backend":"github-actions","bundles":{"plans":{"status":"silent","prs":[],"commits":0},"docs":{"status":"ok","prs":["https://github.com/example/storefront/pull/284"],"commits":2},"code-fixes":{"status":"ok","prs":["https://github.com/example/storefront/pull/285"],"commits":1},"audits":{"status":"silent","prs":[],"commits":0}},"duration_seconds":2640,"model":"claude-opus-4-7"}
+{"repo":"example/storefront","timestamp":"2026-05-10T02:28:00Z","run_url":"https://github.com/example/storefront/actions/runs/seed-102","backend":"github-actions","bundles":{"plans":{"status":"silent","prs":[],"commits":0},"docs":{"status":"silent","prs":[],"commits":0},"code-fixes":{"status":"ok","prs":["https://github.com/example/storefront/pull/287"],"commits":1},"audits":{"status":"failed","prs":[],"commits":0}},"duration_seconds":1870,"model":"claude-opus-4-7"}
+{"repo":"example/storefront","timestamp":"2026-05-12T02:30:00Z","run_url":"https://github.com/example/storefront/actions/runs/seed-103","backend":"github-actions","bundles":{"plans":{"status":"ok","prs":["https://github.com/example/storefront/pull/289"],"commits":2},"docs":{"status":"silent","prs":[],"commits":0},"code-fixes":{"status":"ok","prs":["https://github.com/example/storefront/pull/290"],"commits":3},"audits":{"status":"silent","prs":[],"commits":0}},"duration_seconds":4380,"model":"claude-opus-4-7"}
+{"repo":"example/storefront","timestamp":"2026-05-13T02:31:00Z","run_url":"https://github.com/example/storefront/actions/runs/seed-104","backend":"github-actions","bundles":{"plans":{"status":"silent","prs":[],"commits":0},"docs":{"status":"silent","prs":[],"commits":0},"code-fixes":{"status":"ok","prs":["https://github.com/example/storefront/pull/293"],"commits":1},"audits":{"status":"silent","prs":[],"commits":0}},"duration_seconds":1620,"model":"claude-opus-4-7"}
+{"repo":"example/landing","timestamp":"2026-05-09T02:50:00Z","run_url":"https://github.com/example/landing/actions/runs/seed-201","backend":"github-actions","bundles":{"plans":{"status":"skipped","prs":[],"commits":0},"docs":{"status":"ok","prs":["https://github.com/example/landing/pull/9"],"commits":1},"code-fixes":{"status":"skipped","prs":[],"commits":0},"audits":{"status":"ok","prs":["https://github.com/example/landing/pull/10"],"commits":2}},"duration_seconds":1320,"model":"claude-opus-4-7"}
+{"repo":"example/landing","timestamp":"2026-05-12T02:48:00Z","run_url":"https://github.com/example/landing/actions/runs/seed-202","backend":"github-actions","bundles":{"plans":{"status":"skipped","prs":[],"commits":0},"docs":{"status":"silent","prs":[],"commits":0},"code-fixes":{"status":"skipped","prs":[],"commits":0},"audits":{"status":"ok","prs":["https://github.com/example/landing/pull/12"],"commits":1}},"duration_seconds":960,"model":"claude-opus-4-7"}
+{"repo":"perandre/ns","timestamp":"2026-05-13T09:46:59Z","run_url":"https://github.com/perandre/ns/commit/dashboard-bootstrap","backend":"github-actions","bundles":{"plans":{"status":"ok","prs":[],"commits":1},"docs":{"status":"ok","prs":[],"commits":1},"code-fixes":{"status":"skipped","prs":[],"commits":0},"audits":{"status":"skipped","prs":[],"commits":0}},"duration_seconds":419,"model":"claude-opus-4-7"}
+</script>
 
 <script>
 (function () {
@@ -402,11 +435,7 @@
   }
 
   // ----- Data loading ---------------------------------------------------
-  async function loadEvents() {
-    const url = `${DATA_URL}?t=${Date.now()}`;
-    const res = await fetch(url, { cache: 'no-store' });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const text = await res.text();
+  function parseJsonl(text) {
     const events = [];
     for (const line of text.split(/\r?\n/)) {
       const trimmed = line.trim();
@@ -419,6 +448,18 @@
       } catch (_) { /* skip malformed line */ }
     }
     return events;
+  }
+
+  function loadSeed() {
+    const el = document.getElementById('seed-data');
+    return el ? parseJsonl(el.textContent) : [];
+  }
+
+  async function fetchEvents() {
+    const url = `${DATA_URL}?t=${Date.now()}`;
+    const res = await fetch(url, { cache: 'no-store' });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return parseJsonl(await res.text());
   }
 
   // ----- Aggregation ----------------------------------------------------
@@ -508,17 +549,45 @@
 
   // ----- Lifecycle ------------------------------------------------------
   let lastLoaded = null;
+  let mode = 'preview'; // 'preview' | 'live' | 'error'
+
+  function renderEvents(events) {
+    const { rows, latestDate } = aggregate(events);
+    renderRows(rows);
+    renderHeadline(rows, latestDate);
+  }
+
+  function setMode(next) {
+    mode = next;
+    const refresh = document.getElementById('refresh');
+    const label = document.getElementById('mode-label');
+    refresh.classList.remove('preview', 'error');
+    if (next === 'live')    { label.textContent = 'live'; refresh.title = 'Reading dashboard/runs.jsonl over HTTP'; }
+    if (next === 'preview') { label.textContent = 'preview'; refresh.classList.add('preview'); refresh.title = 'Showing inline seed data — open via http(s):// to read the live runs.jsonl file'; }
+    if (next === 'error')   { label.textContent = 'error'; refresh.classList.add('error'); refresh.title = 'Could not load runs.jsonl'; }
+  }
 
   async function refresh() {
-    try {
-      const events = await loadEvents();
-      const { rows, latestDate } = aggregate(events);
-      renderRows(rows);
-      renderHeadline(rows, latestDate);
+    // Step 1: render the inline seed immediately (works from file://).
+    const seed = loadSeed();
+    if (seed.length && !lastLoaded) {
+      renderEvents(seed);
       lastLoaded = new Date();
+      setMode('preview');
+    }
+    // Step 2: try to fetch the live JSONL — supersedes the seed on success.
+    try {
+      const events = await fetchEvents();
+      renderEvents(events);
+      lastLoaded = new Date();
+      setMode('live');
     } catch (err) {
-      const tbody = document.getElementById('rows');
-      tbody.innerHTML = `<tr><td colspan="3" class="empty"><h2>Couldn't load runs</h2><p>${escapeHtml(String(err.message || err))}</p></td></tr>`;
+      if (!seed.length) {
+        const tbody = document.getElementById('rows');
+        tbody.innerHTML = `<tr><td colspan="3" class="empty"><h2>Couldn't load runs</h2><p>${escapeHtml(String(err.message || err))}</p><p style="margin-top:18px;font-size:0.85em">Open via HTTP — from this folder run <code>python3 -m http.server</code> and visit <code>http://localhost:8000/dashboard/</code>, or deploy to GitHub Pages.</p></td></tr>`;
+        setMode('error');
+      }
+      // Else: keep showing the seed.
     }
   }
 
