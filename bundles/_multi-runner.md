@@ -148,6 +148,21 @@ Treat the result as advisory, not a gate:
 
 This is a hint, not a gate. Never abort a task because scouting failed or produced unexpected output. The merge queue / `--auto` still serves as the backstop for conflicts that slip through.
 
+## Commit identity — never override
+
+Subagents must not run `git config user.name` / `git config user.email`, nor pass `git -c user.email=… -c user.name=… commit`, to author commits under a custom identity. **Leave the routine's default identity alone** — Claude Code routines commit as `Claude <noreply@anthropic.com>`, which GitHub and Vercel both trust. The Actions backend (`.github/workflows/night-shift.yml`) pins `night-shift[bot]@users.noreply.github.com`; both defaults are recognised authors and produce passing preview deploys.
+
+Why this exists: an `add-tests` subagent improvised on 2026-05-14 and authored its commit as `Night Shift <night-shift@friskgarden.no>` — apparently inferring the domain from the repo's `@friskgarden/*` package names. Vercel rejected all preview deploys on that PR with "No GitHub account was found matching the commit author email address," because the email is not tied to any GitHub account. Every sibling PR the same night used the default routine identity and deployed fine. The simplest guarantee is: do not invent a git author from repo contents.
+
+Forbidden patterns:
+
+- `git config user.email "<anything>"` inside the cloned repo.
+- `git config user.name "<anything>"`.
+- `git -c user.email=… -c user.name=… commit …`.
+- Setting `GIT_AUTHOR_EMAIL` / `GIT_COMMITTER_EMAIL` (or `_NAME`) in the environment before a commit.
+
+If a target repo's `CLAUDE.md` Night Shift Config or its CI explicitly sets a bot identity, honour that. Never derive an identity from package scopes, domain names, or product branding found in the repo.
+
 ## PR body formatting
 
 **Critical:** Always pass PR bodies via `--body-file`, never `--body "..."`. Inline `--body` strings are repeatedly serialized as one-liners with literal `\n` instead of newlines (observed in practice — even when the task template uses a quoted HEREDOC, the agent sometimes flattens the body to a single-line string). GitHub then renders the `\n` as visible text and the entire PR shows as one unbroken paragraph.
